@@ -5,6 +5,7 @@
 """
 .. currentmodule:: shapeup.distance
 .. moduleauthor:: Pat Daburu <pat@daburu.net>
+
 This module deals with linear distance measurements.
 """
 from enum import Enum
@@ -28,9 +29,11 @@ _meter_conversions: Dict[Units, float] = {
 def meters(n: float, units: Units) -> float:
     """
     Convert a linear distance to its equivalent in meters.
+
     :param n: the quantity
     :param units: the units in which the distance is expressed
     :return: the equivalent quantity in meters
+
     .. seealso::
         :py:class:`Units`
     """

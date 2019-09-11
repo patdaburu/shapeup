@@ -15,7 +15,7 @@ from typing import TypeVar
 from .errors import ShapeupException
 
 
-class InvalidTypeException(BnrmlException):
+class InvalidTypeException(ShapeupException):
     """
     Raised when an attempt is made to retrieve an non-existent type from a
     fully-qualified name.

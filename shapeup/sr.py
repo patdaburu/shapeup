@@ -119,7 +119,7 @@ def utm(lat: float, lon: float) -> Sr:
     return sr(srid=srid, authority=Authorities.EPSG)
 
 
-def _transform_fn(from_: Sr, to: Sr) -> Callable:
+def transform_fn(from_: Sr, to: Sr) -> Callable:
     """
     Get a transformation function for a pair of spatial references (SR).
 
