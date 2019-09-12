@@ -9,6 +9,7 @@
 Geometries start here.
 """
 import copy
+import hashlib
 from typing import Any, cast, Mapping, Union
 from shapely.geometry import mapping, LineString, Point, Polygon, shape
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
@@ -25,7 +26,7 @@ class SrGeometry(Exportable):
     `Shapely <https://bit.ly/2QovaiU>`_ base geometry with a
     :py:class:`spatial reference <Sr>`.
     """
-    __slots__ = ['_base_geometry', '_sr']
+    __slots__ = ['_base_geometry', '_sr', 'hash_']
 
     def __init__(
             self,
@@ -43,6 +44,8 @@ class SrGeometry(Exportable):
             else shape(base_geometry)
         )  #: the base (Shapely) geometry
         self._sr = sr_  #: the spatial reference (SR)
+        # We'll generate the object hash if and when it's requested.
+        self.hash_: int or None = None
 
     @property
     def base_geometry(self) -> Union[BaseGeometry, BaseMultipartGeometry]:
@@ -218,6 +221,20 @@ class SrGeometry(Exportable):
                 'sr_': Sr(**data.get('sr_'))
             }
         )
+
+    def __hash__(self):
+        # NOTE TO THE FUTURE:  We could probably implement a faster hashing
+        # algorithm.
+
+        # If we haven't generated the hash yet...
+        if self.hash_ is None:
+            # ...do so now.
+            sha = hashlib.sha3_512(  # pylint: disable=no-member
+                str(self.export()).encode('UTF-8')
+            )
+            self.hash_ = int(sha.hexdigest(), 16)
+        # Return the generated hash value.
+        return self.hash_
 
     def __copy__(self):
         return self.__class__(
