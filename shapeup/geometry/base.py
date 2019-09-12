@@ -76,7 +76,7 @@ class SrGeometry(Exportable):
         :return: the point
         """
         return SrPoint(
-            base_geometry=self.base_geometry.centroid,
+            base_geometry=self.base_geometry.representative_point,
             sr_=self._sr
         )
 
@@ -308,6 +308,20 @@ class SrPoint(SrGeometry):
         """
         return self._base_geometry
 
+    @property
+    def x(self) -> float:
+        """
+        Get the X coordinate.
+        """
+        return self._base_geometry.x
+
+    @property
+    def y(self) -> float:
+        """
+        Get the Y coordinate.
+        """
+        return self._base_geometry.y
+
     def location(self) -> 'SrPoint':
         """
         Get a single point that best represents the location of this geometry
@@ -349,6 +363,30 @@ class SrPoint(SrGeometry):
         return SrPoint(
             base_geometry=base_geometry,
             sr_=WGS_84
+        )
+
+    @classmethod
+    def from_coords(
+            cls,
+            x: float,
+            y: float,
+            sr: int or Sr
+    ) -> 'SrPoint':
+        """
+        Create a point from a set of coordinates and a spatial reference.
+
+        :param x: the X coordinate
+        :param y: the Y coordinate
+        :param sr: the spatial reference ID (SRID) or an `Sr` that
+            represents the spatial reference
+        :return: the point
+        """
+        # Create the base geometry.
+        base_geometry = Point(x, y)
+        # Create and return the point.
+        return SrPoint(
+            base_geometry=base_geometry,
+            sr_=sr if isinstance(sr, Sr) else Sr(srid=sr)
         )
 
 
@@ -404,4 +442,3 @@ class SrPolyline(SrGeometry):
 
 
 SrLinestring = SrPolyline  #: This is an alias for :py:class:`SrPolyline`
-

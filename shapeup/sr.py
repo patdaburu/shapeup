@@ -8,19 +8,12 @@
 
 If you're dealing with spatial references (SR), look in here!
 """
-import copy
 from enum import Enum
 from functools import partial
 import math
-from typing import Any, Callable, cast, Dict, Mapping, NamedTuple, Tuple, Union
+from typing import Callable, Dict, NamedTuple, Tuple
 import pyproj
 from pyproj import Proj
-from shapely.geometry import mapping, LineString, Point, Polygon, shape
-from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
-from shapely.ops import transform
-from .distance import meters, Units
-from .types import pycls as cls_, pyfqn
-from .xchg import Exportable
 
 
 #: `pyproj.Proj` instances cached by srid and authority
