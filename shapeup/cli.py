@@ -18,8 +18,13 @@ can be used as a handy facility for running the task from a command line.
     `Read-The-Docs <http://luigi.readthedocs.io/en/stable/>`_ page.
 """
 import logging
+from pathlib import Path
 import click
+import matplotlib.pyplot as plt
+import mplleaflet
 from .__init__ import __version__
+from .geometry import SrPoint
+from .sr import Sr
 
 LOGGING_LEVELS = {
     0: logging.NOTSET,
@@ -79,6 +84,31 @@ def hello(_: Info):
     Say 'hello' to the nice people.
     """
     click.echo(f"shapeup says 'hello'")
+
+
+@cli.command()
+@pass_info
+@click.option('-x', help="the X coordinate", type=click.FLOAT, required=True)
+@click.option('-y', help='the Y coordinate', type=click.FLOAT, required=True)
+@click.option('--srid', '-s', help='the SRID', type=click.INT, required=True)
+def plotxy(info, x, y, srid):
+
+    # https://github.com/jwass/mplleaflet
+    # https://matplotlib.org/3.1.0/api/_as_gen/matplotlib.pyplot.plot.html
+
+    sr = Sr(srid=srid)
+    point = SrPoint.from_coords(x=x, y=y, sr=sr)
+    wgs84 = point.as_wgs84()
+
+    plt.plot(
+        wgs84.x,
+        wgs84.y,
+        color='red',
+        marker='o',
+        markersize=14
+    )
+    # Use leaflet to show it.
+    mplleaflet.show()
 
 
 @cli.command()
