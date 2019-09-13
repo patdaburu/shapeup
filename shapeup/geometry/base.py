@@ -15,7 +15,7 @@ from shapely.geometry import mapping, LineString, Point, Polygon, shape
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import transform
 from ..distance import meters, Units
-from ..sr import Sr, WGS_84, utm, transform_fn
+from ..sr import by_srid, Sr, WGS_84, utm, transform_fn
 from ..types import pycls as cls_, pyfqn
 from ..xchg import Exportable
 
@@ -135,29 +135,32 @@ class SrGeometry(Exportable):
         # Transform this geometry's base geometry to the UTM zone.
         return self.transform(sr_=utm_sr)
 
-    def transform(self, sr_: Sr, copy_: bool = True) -> 'SrGeometry':
+    def transform(self, sr_: Sr or int) -> 'SrGeometry':
         """
         Transform this geometry to
 
         :param sr_: the target spatial reference
-        :param copy_: `True` (the default) to make a copy of the geometry if
-            the target spatial reference is the same as the current spatial
-            reference; when `False` the instance will return itself
         :return: an :py:class:`SrGeometry` in the target spatial reference
         """
-        # If the target spatial reference (SR) is this geometry's spatial
-        # reference, just return this geometry.
-        if sr_ == self._sr:
-            return copy.copy(self) if copy_ else self
+        # Let's get the spatial reference (`Sr`): the caller may have given
+        # us a ready-made one, but may also have just indicated the SRID.
+        _sr = (
+            sr_ if isinstance(sr_, Sr)
+            else by_srid(srid=sr_)
+        )
+        # If the target `Sr` is this geometry's spatial reference, just return
+        # this geometry.
+        if _sr == self._sr:
+            return self
         # Get the transformation function.
-        _transform_fn = transform_fn(from_=self._sr, to=sr_)
+        _transform_fn = transform_fn(from_=self._sr, to=_sr)
         # Perform the transformation to get the new base geometry.
         transformed_geometry = transform(_transform_fn, self._base_geometry)
         # Create the new `SrGeometry` using the transformed base geometry and
         # the spatial reference the caller supplied.
         return SrGeometry(
             base_geometry=transformed_geometry,
-            sr_=sr_
+            sr_=_sr
         )
 
     def buffer(
