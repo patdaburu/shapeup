@@ -15,6 +15,30 @@ The project's documentation contains a section to help you
 [get started](https://shapeup.readthedocs.io/en/latest/getting_started.html) as a developer or
 user of the library.
 
+## A Simple Example
+
+In the example below we'll just...
+
+* create a point from a latitude and a longitude;
+* convert it to its [UTM](https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system) equivalent; and
+* have a look at the result. 
+
+``` python
+>>> from shapeup import SrPoint
+>>> wgs84 = SrPoint.from_lat_lon(lat=45.553670, lon=-94.142430)
+>>> utm = wgs84.as_utm()
+>>> print(f'x={utm.x}, y={utm.y}')
+x=410830.5412685075, y=5045093.805781859
+>>> print(utm.srid)
+32615
+```
+
+*shapeup* handles the details of figuring out which UTM zone contains the geographic coordinates and transforming them to that UTM zone's coordinate system.
+
+For more examples and other information, visit the [documentation page]((http://www.comingsoon.net)).
+
+
+
 ## Development Prerequisites
 
 If you're going to be working in the code (rather than just using the library), you'll want a few utilities.

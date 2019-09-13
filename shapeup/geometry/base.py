@@ -10,7 +10,7 @@ Geometries start here.
 """
 import copy
 import hashlib
-from typing import Any, cast, Mapping, Union
+from typing import Any, cast, Dict, Mapping, Union
 from shapely.geometry import mapping, LineString, Point, Polygon, shape
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import transform
@@ -158,7 +158,7 @@ class SrGeometry(Exportable):
         transformed_geometry = transform(_transform_fn, self._base_geometry)
         # Create the new `SrGeometry` using the transformed base geometry and
         # the spatial reference the caller supplied.
-        return SrGeometry(
+        return sr_shape(
             base_geometry=transformed_geometry,
             sr_=_sr
         )
@@ -288,8 +288,10 @@ class SrGeometry(Exportable):
 
     def __str__(self):
         return (
-            f"{self.__class__.__name__}(SRID={self._sr.srid})"
-            f"@{hex(id(self))}"
+            f"{self.__class__.__name__}("
+            f"base_geometry={self.mapping()}, "
+            f"sr_={repr(self._sr)}"
+            f")"
         )
 
 
@@ -445,3 +447,49 @@ class SrPolyline(SrGeometry):
 
 
 SrLinestring = SrPolyline  #: This is an alias for :py:class:`SrPolyline`
+
+#: a mapping of Shapely geometry types to SrGeometry types
+_geometry_type_map: Dict[type, type] = {}
+
+
+def sr_shape(
+        base_geometry: Union[BaseGeometry, BaseMultipartGeometry, Mapping],
+        sr_: Sr = WGS_84
+) -> Union[SrGeometry, SrPoint, SrPolyline, SrPolygon]:
+    """
+    Create a :py:class:`SrGeometry` from a `Shapely` geometry (or mapping).
+
+    :param base_geometry: the base geometry (or mapping)
+    :param sr_: the spatial reference
+    :return: the :py:class:`SrGeometry`
+
+    .. note::
+
+        The returned depends on the type of `Shapely` base geometry the
+        `base_geometry` parameter describes.
+    """
+    # If the type map hasn't been initialized, do so now...
+    if not _geometry_type_map:
+        for sstype, srtype in {
+                Point: SrPoint,
+                LineString: SrPolyline,
+                Polygon: SrPolygon
+        }.items():
+            _geometry_type_map[sstype] = srtype
+    # Create the Shapely base geometry.
+    _base_geometry = (
+        base_geometry if isinstance(
+            base_geometry,
+            (BaseGeometry, BaseMultipartGeometry)
+        )
+        else shape(base_geometry)
+    )
+    # Figure out which class we need to instantiate.
+    sr_geom_cls = _geometry_type_map.get(
+        type(_base_geometry), SrGeometry
+    )
+    # Instantiate the class.
+    return sr_geom_cls(
+        base_geometry=_base_geometry,
+        sr_=sr_
+    )

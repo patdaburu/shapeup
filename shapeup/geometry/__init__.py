@@ -8,4 +8,11 @@
 
 This package contains geometry objects and utilities.
 """
-from .base import SrGeometry, SrPoint, SrLinestring, SrPolygon, SrPolyline
+from .base import (
+    sr_shape,
+    SrGeometry,
+    SrPoint,
+    SrLinestring,
+    SrPolygon,
+    SrPolyline
+)
