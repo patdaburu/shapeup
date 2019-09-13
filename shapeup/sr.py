@@ -11,18 +11,26 @@ If you're dealing with spatial references (SR), look in here!
 from enum import Enum
 from functools import partial
 import math
-from typing import Callable, Dict, NamedTuple, Tuple
+from typing import Callable, Dict, NamedTuple, Tuple, Union
 import pyproj
 from pyproj import Proj
-
+import pyproj.exceptions
+from .errors import ShapeupException
 
 #: `pyproj.Proj` instances cached by srid and authority
 _proj_cache: Dict[Tuple[int, str], Proj] = {}
 
 
+class InvalidSrException(ShapeupException):
+    """
+    Raised in response to attempts to create or use invalid spatial
+    references.
+    """
+
+
 class Authorities(Enum):
     """
-    spatial reference authorities
+    Spatial Reference Authorities
     """
     EPSG = 'epsg'  #: European Petroleum Survey Group
 
@@ -43,9 +51,16 @@ class Sr(NamedTuple):
         try:
             return _proj_cache[(self.srid, self.authority)]
         except KeyError:
-            _proj = Proj(init=f'{self.authority}:{self.srid}')
-            _proj_cache[(self.srid, self.authority)] = _proj
-            return _proj
+            try:
+                _proj = Proj(init=f'{self.authority}:{self.srid}')
+                _proj_cache[(self.srid, self.authority)] = _proj
+                return _proj
+            except pyproj.exceptions.CRSError as crsex:
+                raise InvalidSrException(
+                    message=str(crsex),
+                    inner=crsex
+                )
+
 
 
 class LatLon(NamedTuple):
@@ -132,3 +147,27 @@ def transform_fn(from_: Sr, to: Sr) -> Callable:
         )
         _transform_fn_cache[(from_, to)] = fn
         return fn
+
+
+def by_srid(
+        srid: int,
+        authority: Union[Authorities, str] = Authorities.EPSG.name,
+        validate: bool = True
+) -> Sr:
+    """
+    Get a spatial reference (`Sr`) by its SRID and, optionally, the authority
+    (if it isn't an `EPSG <http://www.epsg.org/>`_ spatial reference).
+
+    :param srid: the SRID
+    :param authority: the authority *(The default is `epsg`)*
+    :param validate: `True` to validate the :py:class:`Sr`
+    :return: the SRID
+    :raises InvalidProjectionException: if there is no valid projection defined
+        for the spatial reference
+    """
+    _sr = sr(srid=srid, authority=authority)
+    # If we're asked to validate the `Sr`...
+    if validate:
+        # ...make sure there is a valid projection.
+        _ = _sr.proj
+    return _sr
