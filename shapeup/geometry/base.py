@@ -9,12 +9,13 @@
 Geometries start here.
 """
 import copy
+from functools import lru_cache
 import hashlib
 from typing import Any, cast, Dict, Mapping, Union
 from shapely.geometry import mapping, LineString, Point, Polygon, shape
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import transform
-from ..distance import convert, meters, Units
+from ..measure import convert, meters, Units
 from ..sr import by_srid, Sr, WGS_84, utm, transform_fn
 from ..types import pycls, pyfqn
 from ..xchg import Exportable
@@ -166,19 +167,25 @@ class SrGeometry(Exportable):
     def buffer(
             self,
             n: int or float,
-            units: Units = Units.METERS
+            units: Units = Units.METERS,
+            resolution: int = 64
     ) -> 'SrGeometry':
         """
         Buffer the geometry by `n` meters.
 
         :param n: the radius
         :param units: the radius distance units
+        :param resolution: the number of segments used to approximate a quarter
+            circle around a point
         :return: the buffered geometry
         """
         # Get the geometry in a UTM coordinate system.
         base_utm = self.as_utm()
         # Buffer the base geometry.
-        base_utm_buf = base_utm.base_geometry.buffer(meters(n, units))
+        base_utm_buf = base_utm.base_geometry.buffer(
+            distance=meters(n, units),
+            resolution=resolution
+        )
         # Create a new `SrGeometry` with the buffered base geometry and the
         # UTM spatial reference.
         sr_geom_buf = SrGeometry(
@@ -337,19 +344,29 @@ class SrPoint(SrGeometry):
         # Return the point in the center of the line.
         return self
 
+    @lru_cache(maxsize=1)
     def buffer(
             self,
             n: int or float,
-            units: Units = Units.METERS
+            units: Units = Units.METERS,
+            resolution: int = 64
     ) -> 'SrPolygon':
         """
         Buffer the geometry by `n` meters.
 
         :param n: the radius
         :param units: the radius distance units
+        :param resolution: the number of segments used to approximate a quarter
+            circle around a point
         :return: the buffered geometry
         """
-        return cast(SrPolygon, super().buffer(n=n, units=units))
+        return cast(
+            SrPolygon, super().buffer(
+                n=n,
+                units=units,
+                resolution=resolution
+            )
+        )
 
     @classmethod
     def from_lat_lon(cls, lat: float, lon: float):
@@ -413,21 +430,26 @@ class SrPolygon(SrGeometry):
         """
         return self._base_geometry
 
-    # def area(
-    #         self,
-    #         units: Units = Units.METERS
-    # ) -> float:
-    #     """
-    #     Get the area of the polygon in the specified units (squared).
-    #
-    #     :param units: the units
-    #     :return: the area
-    #     """
-    #     # Get the geometry in a UTM coordinate system.
-    #     _utm = self.as_utm()
-    #     # Now that it's in a coordinate system measured in meters, we can
-    #     # return the area with confidence.
-    #     return convert(_utm.base_geometry.area, units=Units.METERS, to=units)
+    @lru_cache(maxsize=2)
+    def area(
+            self,
+            units: Units = Units.METERS
+    ) -> float:
+        """
+        Get the area of the polygon in the specified units (squared).
+
+        :param units: the units in which the area should be expressed
+        :return: the area
+        """
+        # Get the geometry in a UTM coordinate system.
+        _utm = self.as_utm()
+        # Now that it's in a coordinate system measured in meters, we can
+        # return the area with confidence.
+        return convert(
+            n=_utm.base_geometry.area,
+            units=Units.METERS,
+            to=units
+        )
 
 
 class SrPolyline(SrGeometry):
