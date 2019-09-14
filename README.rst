@@ -1,7 +1,17 @@
 shapeup
 =======
 
-It's Shapely with projections and some other conveniences!
+`Shapely <https://shapely.readthedocs.io/en/stable/manual.html>`__ is
+great for working with geometries, but if you're dealing with Geographic
+Information Systems
+`GIS <https://www.nationalgeographic.org/encyclopedia/geographic-information-system-gis/>`__
+there are times when you really need your geometries to have some
+awareness of `spatial
+reference <https://en.wikipedia.org/wiki/Spatial_reference_system>`__.
+This project seeks to combine ``Shapely`` with
+`pyproj <https://pypi.org/project/pyproj/>`__ and some other
+conveniences to make working with geometries across spatial references
+easy and fun!
 
 Project Features
 ----------------
@@ -30,6 +40,27 @@ point that happens to be in `UTM zone
 15N <https://spatialreference.org/ref/epsg/32615/>`__ (32615). We'll
 then use the ``as_utm`` method to create the equivalent point in the UTM
 coordinate system.
+
+.. code:: python
+
+    from shapeup import SrPoint
+
+    # Create a point from a latitude, longitude.
+    wgs84 = SrPoint.from_lat_lon(lat=45.553670, lon=-94.142430)
+
+    # Convert it to UTM.
+    utm = wgs84.as_utm()
+
+    # What are the coordinates of the UTM point?
+    print(f'x={utm.x}, y={utm.y}')
+
+    # What's the SRID of the UTM point's coordinate system.
+    print(f"The UTM SRID is: {utm.srid}")
+
+.. code:: sh
+
+    x=410830.5412685075, y=5045093.805781859
+    The UTM SRID is: 32615
 
 For more examples and other information, visit the [documentation
 page]((https://readthedocs.org/projects/shapeup/).

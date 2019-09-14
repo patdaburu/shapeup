@@ -5,7 +5,14 @@
 shapeup
 =======
 
-It's Shapely with projections and some other conveniences!
+`Shapely <https://shapely.readthedocs.io/en/stable/manual.html>`_ is great for
+working with geometries, but if you're dealing with Geographic Information
+Systems (`GIS <https://www.nationalgeographic.org/encyclopedia/geographic-information-system-gis/>`_)
+there are times when you really need your geometries to have some awareness of
+`spatial reference <https://en.wikipedia.org/wiki/Spatial_reference_system>`_.
+This project seeks to combine `Shapely` with
+`pyproj <https://pypi.org/project/pyproj/>`_ and some other conveniences to make
+working with geometries across spatial references easy and fun!
 
 .. toctree::
    :maxdepth: 2
