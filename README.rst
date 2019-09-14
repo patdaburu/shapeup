@@ -4,7 +4,7 @@ shapeup
 `Shapely <https://shapely.readthedocs.io/en/stable/manual.html>`__ is
 great for working with geometries, but if you're dealing with Geographic
 Information Systems
-`GIS <https://www.nationalgeographic.org/encyclopedia/geographic-information-system-gis/>`__
+(`GIS <https://www.nationalgeographic.org/encyclopedia/geographic-information-system-gis/>`__)
 there are times when you really need your geometries to have some
 awareness of `spatial
 reference <https://en.wikipedia.org/wiki/Spatial_reference_system>`__.
