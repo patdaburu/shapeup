@@ -14,18 +14,18 @@ shapeup.geometry.base
     :undoc-members:
     :show-inheritance:
 
-shapeup.distance
-^^^^^^^^^^^^^^^^
-
-.. automodule:: shapeup.distance
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 shapeup.errors
 ^^^^^^^^^^^^^^
 
 .. automodule:: shapeup.errors
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+shapeup.measure
+^^^^^^^^^^^^^^^
+
+.. automodule:: shapeup.measure
     :members:
     :undoc-members:
     :show-inheritance:

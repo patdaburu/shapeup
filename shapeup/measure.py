@@ -51,6 +51,29 @@ def convert(
         to: Units,
         dimension: int = 1
 ) -> float:
+    """
+    Convert a quantity defined in one unit to its equivalent quantity in another
+    unit.
+
+    :param n: the quantity
+    :param units: the units
+    :param to: the conversion units
+    :param dimension: the dimensionality of `n`
+    :return: the equivalent units
+    :raises ValueError: if the ``dimension`` parameter is not ``1``, ``2``, or
+        ``3``
+
+    .. note::
+
+        If the units represent a square (*e.g.* "square meters"), the
+        ``dimension`` parameter should be ``2``.  If it's cubic
+        (*e.g.* "cubic meters"), ``dimension`` should be ``3``.  For linear
+        distances, use the default (``1``).
+    """
+    # Sanity Check:  If the original units and the target units are the same...
+    if units == to:
+        # ...just return the original quantity.
+        return n
     if dimension < 1 or dimension > 3:
         raise ValueError("'dimension' must be between 1 and 3.")
     # Get the quantity in meters.  Notice that if we're working with 2

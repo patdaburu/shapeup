@@ -1,7 +1,7 @@
 .. _examples_wgs84_to_utm:
 
-WGS84 (Lat/Lon) to UTM
-======================
+WGS84 to UTM
+============
 
 In this example we'll start with a latitude and a longitude and create a
 :py:class:`point <shapeup.geometry.base.SrPoint>` that happens to be in
@@ -24,12 +24,12 @@ to create the equivalent point in the UTM coordinate system.
     print(f'x={utm.x}, y={utm.y}')
 
     # What's the SRID of the UTM point's coordinate system.
-    print(utm.srid)
+    print(f"The UTM SRID is: {utm.srid}")
 
 .. code-block:: coq
 
     x=410830.5412685075, y=5045093.805781859
-    32615
+    The UTM SRID is: 32615
 
 Notice that we didn't have to specify which UTM zone to use.  It's selected
 automatically based on the coordinate we supplied.

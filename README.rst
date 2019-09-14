@@ -6,9 +6,7 @@ It's Shapely with projections and some other conveniences!
 Project Features
 ----------------
 
--  `shapeup <http://www.comingsoon.net>`__
--  a starter `Click <http://click.pocoo.org/5/>`__ command-line
-   application
+-  `shapeup <https://readthedocs.org/projects/shapeup/>`__
 -  automated unit tests you can run with
    `pytest <https://docs.pytest.org/en/latest/>`__
 -  a `Sphinx <http://www.sphinx-doc.org/en/master/>`__ documentation
@@ -21,33 +19,20 @@ The project's documentation contains a section to help you `get
 started <https://shapeup.readthedocs.io/en/latest/getting_started.html>`__
 as a developer or user of the library.
 
-A Simple Example
-----------------
+Examples
+--------
 
-In the example below we'll just...
+WGS84 to UTM
+~~~~~~~~~~~~
 
--  create a point from a latitude and a longitude;
--  convert it to its
-   `UTM <https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system>`__
-   equivalent; and
--  have a look at the result.
-
-.. code:: python
-
-    >>> from shapeup import SrPoint
-    >>> wgs84 = SrPoint.from_lat_lon(lat=45.553670, lon=-94.142430)
-    >>> utm = wgs84.as_utm()
-    >>> print(f'x={utm.x}, y={utm.y}')
-    x=410830.5412685075, y=5045093.805781859
-    >>> print(utm.srid)
-    32615
-
-*shapeup* handles the details of figuring out which UTM zone contains
-the geographic coordinates and transforming them to that UTM zone's
+In this example we'll start with a latitude and a longitude and create a
+point that happens to be in `UTM zone
+15N <https://spatialreference.org/ref/epsg/32615/>`__ (32615). We'll
+then use the ``as_utm`` method to create the equivalent point in the UTM
 coordinate system.
 
-For more examples and other information, visit the `documentation
-page <(http://www.comingsoon.net)>`__.
+For more examples and other information, visit the [documentation
+page]((https://readthedocs.org/projects/shapeup/).
 
 Development Prerequisites
 -------------------------

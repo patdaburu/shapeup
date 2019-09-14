@@ -11,3 +11,4 @@ Examples
    :caption: Contents:
 
    examples/wgs84_to_utm
+   examples/wgs84_buffer

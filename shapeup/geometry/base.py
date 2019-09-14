@@ -11,7 +11,7 @@ Geometries start here.
 import copy
 from functools import lru_cache
 import hashlib
-from typing import Any, cast, Dict, Mapping, Union
+from typing import Any, Dict, Mapping, Union
 from shapely.geometry import mapping, LineString, Point, Polygon, shape
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import transform
@@ -164,12 +164,13 @@ class SrGeometry(Exportable):
             sr_=_sr
         )
 
+    @lru_cache(maxsize=1)
     def buffer(
             self,
             n: int or float,
             units: Units = Units.METERS,
             resolution: int = 64
-    ) -> 'SrGeometry':
+    ) -> 'SrPolygon':
         """
         Buffer the geometry by `n` meters.
 
@@ -188,11 +189,11 @@ class SrGeometry(Exportable):
         )
         # Create a new `SrGeometry` with the buffered base geometry and the
         # UTM spatial reference.
-        sr_geom_buf = SrGeometry(
+        sr_geom_buf = SrPolygon(
             base_geometry=base_utm_buf,
             sr_=base_utm.sr
         )
-        # Transform the buffered `SrGeometry` to the original coordinate system
+        # Transform the buffered polygon to the original coordinate system
         # and return it.
         return sr_geom_buf.transform(self._sr)
 
@@ -343,30 +344,6 @@ class SrPoint(SrGeometry):
         """
         # Return the point in the center of the line.
         return self
-
-    @lru_cache(maxsize=1)
-    def buffer(
-            self,
-            n: int or float,
-            units: Units = Units.METERS,
-            resolution: int = 64
-    ) -> 'SrPolygon':
-        """
-        Buffer the geometry by `n` meters.
-
-        :param n: the radius
-        :param units: the radius distance units
-        :param resolution: the number of segments used to approximate a quarter
-            circle around a point
-        :return: the buffered geometry
-        """
-        return cast(
-            SrPolygon, super().buffer(
-                n=n,
-                units=units,
-                resolution=resolution
-            )
-        )
 
     @classmethod
     def from_lat_lon(cls, lat: float, lon: float):
