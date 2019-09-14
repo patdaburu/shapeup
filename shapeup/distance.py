@@ -35,6 +35,13 @@ def meters(n: float, units: Units) -> float:
     :return: the equivalent quantity in meters
 
     .. seealso::
+
         :py:class:`Units`
     """
     return n/_meter_conversions[units]
+
+
+def convert(n: float, units: Units, to: Units) -> float:
+    return (
+        meters(n=n, units=units) * _meter_conversions[to]
+    )

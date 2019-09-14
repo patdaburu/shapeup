@@ -12,6 +12,7 @@ It's Shapely with projections and some other conveniences!
    :caption: Contents:
 
    getting_started
+   examples
    api
    development
    requirements

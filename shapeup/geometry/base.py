@@ -14,9 +14,9 @@ from typing import Any, cast, Dict, Mapping, Union
 from shapely.geometry import mapping, LineString, Point, Polygon, shape
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import transform
-from ..distance import meters, Units
+from ..distance import convert, meters, Units
 from ..sr import by_srid, Sr, WGS_84, utm, transform_fn
-from ..types import pycls as cls_, pyfqn
+from ..types import pycls, pyfqn
 from ..xchg import Exportable
 
 
@@ -214,7 +214,7 @@ class SrGeometry(Exportable):
             # ...then the answer is nothing.
             return None
         try:
-            _cls = cls_(data['__type__'])
+            _cls = pycls(data['__type__'])
         except KeyError:
             _cls = cls
 
@@ -412,6 +412,22 @@ class SrPolygon(SrGeometry):
         Get the base geometry as a `shapely.geometry.Polygon`.
         """
         return self._base_geometry
+
+    # def area(
+    #         self,
+    #         units: Units = Units.METERS
+    # ) -> float:
+    #     """
+    #     Get the area of the polygon in the specified units (squared).
+    #
+    #     :param units: the units
+    #     :return: the area
+    #     """
+    #     # Get the geometry in a UTM coordinate system.
+    #     _utm = self.as_utm()
+    #     # Now that it's in a coordinate system measured in meters, we can
+    #     # return the area with confidence.
+    #     return convert(_utm.base_geometry.area, units=Units.METERS, to=units)
 
 
 class SrPolyline(SrGeometry):
